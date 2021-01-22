@@ -1,0 +1,41 @@
+image: python:3.8
+
+stages:
+  - build
+  - test
+  - deploy
+
+build-wheel:
+  stage: build
+  tags:
+    - docker
+  before_script:
+    - echo
+  script:
+    - make
+  artifacts:
+    paths:
+      - "dist/htmllogging-*.*"
+    expire_in: 1 week
+  only:
+    - tags
+
+deploy-wheel:
+  stage: deploy
+  tags:
+    - docker
+  image: chartedcode/alpine-sftp-client
+  before_script:
+    - echo "$PYPI_KEY" | tr -d '\r' > ./ssh_key
+    - chmod 600 ./ssh_key
+  script:
+     - |
+      sftp -i ./ssh_key -oStrictHostKeyChecking=no $PYPI_USER@$PYPI_HOST:/htmllogging/ << EOF
+        put dist/*
+        quit
+      EOF
+  needs: [build-wheel]
+  dependencies:
+    - build-wheel
+  only:
+    - tags

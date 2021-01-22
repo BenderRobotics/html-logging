@@ -1,0 +1,13 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Visual studio workging folder
+.vscode/
+build/
+
+# Builds
+dist/
+docs/_build/
+htmllogging.egg-info/
